@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320">
+  <defs>
+    <linearGradient id="silver" x2="0" y2="1">
+      <stop stop-color="#f3f3f5"/>
+      <stop offset=".24" stop-color="#efeff0"/>
+      <stop offset=".63" stop-color="#bbbcbf"/>
+      <stop offset=".86" stop-color="#a1a2a5"/>
+      <stop offset=".96" stop-color="#a8a7a8"/>
+      <stop offset="1" stop-color="#d3cbc6"/>
+    </linearGradient>
+    <radialGradient id="edgeLight" cx=".5" cy=".52" r=".72">
+      <stop offset=".44" stop-color="#fff" stop-opacity="0"/>
+      <stop offset=".89" stop-color="#fff" stop-opacity=".28"/>
+      <stop offset="1" stop-color="#fff" stop-opacity=".6"/>
+    </radialGradient>
+    <linearGradient id="bevel" x2="0" y2="1">
+      <stop stop-color="#d3e6ff"/>
+      <stop offset=".13" stop-color="#fffcf8"/>
+      <stop offset=".83" stop-color="#fffff4"/>
+      <stop offset="1" stop-color="#ffc4bb"/>
+    </linearGradient>
+    <radialGradient id="cool">
+      <stop stop-color="#a7beff" stop-opacity=".85"/>
+      <stop offset=".53" stop-color="#849cff" stop-opacity=".47"/>
+      <stop offset="1" stop-color="#748eff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="warm">
+      <stop stop-color="#fff1df" stop-opacity=".83"/>
+      <stop offset=".43" stop-color="#ffc0b9" stop-opacity=".42"/>
+      <stop offset=".76" stop-color="#ffaaa9" stop-opacity=".13"/>
+      <stop offset="1" stop-color="#ff888f" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="bloom" x="-.5" y="-.5" width="2" height="2">
+      <feGaussianBlur stdDeviation="11"/>
+    </filter>
+    <filter id="grain">
+      <feTurbulence type="fractalNoise" baseFrequency=".84" numOctaves="3" seed="24"/>
+      <feColorMatrix type="saturate" values="0"/>
+    </filter>
+    <clipPath id="face"><rect x="63.5" y="62.5" width="194" height="194" rx="1.25"/></clipPath>
+  </defs>
+  <rect x="63.5" y="62.5" width="194" height="194" fill="none" stroke="#ffe5e4" stroke-width="12" opacity=".57" filter="url(#bloom)"/>
+  <ellipse cx="160" cy="65" rx="135" ry="48" fill="url(#cool)"/>
+  <ellipse cx="160" cy="252" rx="139" ry="48" fill="url(#warm)"/>
+  <rect x="63.5" y="62.5" width="194" height="194" rx="1.25" fill="url(#silver)"/>
+  <g clip-path="url(#face)">
+    <rect x="63.5" y="62.5" width="194" height="194" fill="url(#edgeLight)"/>
+    <rect x="63.5" y="62.5" width="194" height="194" filter="url(#grain)" opacity=".24" style="mix-blend-mode:soft-light"/>
+  </g>
+  <rect x="64" y="63" width="193" height="193" rx="1" fill="none" stroke="url(#bevel)" stroke-width="1.7"/>
+</svg>

@@ -10,9 +10,18 @@ const benchmarks = window.chipBenchmarks || [];
 const appleTests = window.appleTests || [];
 const compare = ['m6', 'm5-max', 'm5-ultra'].filter((id) => chipById.has(id));
 while (compare.length < 3) compare.push('');
-const state = {family: 'all', specialty: 'all', query: '', sort: 'new', limit: 9, metric: 'memory', dock: false};
+const state = {family: 'all', specialty: 'all', query: '', sort: 'new', metric: 'memory', dock: false};
+const catalogBatchSize = 9;
 const dialog = find('#chip-detail');
 const grid = find('#chip-grid');
+const catalogEnd = find('#catalog-end');
+let catalogMatches = [];
+let catalogShown = 0;
+const catalogObserver = 'IntersectionObserver' in window
+  ? new IntersectionObserver(([entry]) => {
+    if (entry.isIntersecting) appendCatalogBatch();
+  }, {rootMargin: '0px 0px 140px 0px'})
+  : null;
 const comparePicks = find('#compare-picks');
 const compareFigure = find('#compare-figure');
 const benchmarkApp = find('#benchmark-app');
@@ -118,7 +127,6 @@ find('#family-tabs').innerHTML = tabMarkup(families, state.family, 'family');
 function setFamily(id) {
   state.family = id;
   state.specialty = 'all';
-  state.limit = 9;
   renderSpecialtyTabs();
   find('#family-tabs').querySelectorAll('button').forEach((button) => {
     button.setAttribute('aria-pressed', button.dataset.family === id);
@@ -158,19 +166,30 @@ function card(chip) {
 
 function renderCatalog() {
   const query = state.query.trim().split(/\s+/).map(lookupText).filter(Boolean);
-  const found = chips.filter((chip) => {
+  catalogMatches = chips.filter((chip) => {
     if (!familyMatch(chip, state.family)) return false;
     if (state.family === 'other' && state.specialty !== 'all' && chip.series !== state.specialty) return false;
     const text = lookupText([chip.name, chip.id, chip.tag, chip.year, ...(chip.devices || [])].join(' '));
     return query.every((term) => text.includes(term));
   });
-  if (state.sort === 'old') found.reverse();
-  if (state.sort === 'name') found.sort(byName);
-  const shown = found.slice(0, state.limit);
-  find('#result-count').textContent = `共 ${found.length} 款${found.length > shown.length ? ` · 已显示 ${shown.length} 款` : ''}`;
-  grid.innerHTML = shown.length ? shown.map(card).join('') : '<p class="empty">没有匹配的芯片。试试型号，例如 M5、A20，或设备名称，例如 Mac Studio。</p>';
-  find('#more-row').hidden = found.length <= state.limit;
-  find('#more-button').textContent = `再显示 ${Math.min(9, found.length - shown.length)} 款`;
+  if (state.sort === 'old') catalogMatches.reverse();
+  if (state.sort === 'name') catalogMatches.sort(byName);
+  catalogShown = 0;
+  grid.innerHTML = catalogMatches.length ? '' : '<p class="empty">没有匹配的芯片。试试型号，例如 M5、A20，或设备名称，例如 Mac Studio。</p>';
+  appendCatalogBatch();
+}
+
+function appendCatalogBatch() {
+  catalogObserver?.unobserve(catalogEnd);
+  const count = catalogMatches.length;
+  const end = catalogObserver ? catalogShown + catalogBatchSize : count;
+  const next = catalogMatches.slice(catalogShown, end);
+  grid.insertAdjacentHTML('beforeend', next.map(card).join(''));
+  catalogShown += next.length;
+  const hasMore = catalogShown < count;
+  find('#result-count').textContent = `共 ${count} 款${hasMore ? ` · 已显示 ${catalogShown} 款` : ''}`;
+  catalogEnd.hidden = !hasMore;
+  if (hasMore) catalogObserver.observe(catalogEnd);
 }
 
 find('#family-index').addEventListener('click', (event) => {
@@ -198,7 +217,6 @@ find('#specialty-tabs').addEventListener('click', (event) => {
   const button = event.target.closest('[data-specialty]');
   if (!button) return;
   state.specialty = button.dataset.specialty;
-  state.limit = 9;
   renderSpecialtyTabs();
   find(`[data-specialty="${state.specialty}"]`).focus({preventScroll: true});
   renderCatalog();
@@ -206,21 +224,12 @@ find('#specialty-tabs').addEventListener('click', (event) => {
 
 find('#search').addEventListener('input', (event) => {
   state.query = event.target.value;
-  state.limit = 9;
   renderCatalog();
 });
 
 find('#sort').addEventListener('change', (event) => {
   state.sort = event.target.value;
-  state.limit = 9;
   renderCatalog();
-});
-
-find('#more-button').addEventListener('click', () => {
-  const previousLimit = state.limit;
-  state.limit += 9;
-  renderCatalog();
-  grid.children[previousLimit]?.querySelector('a')?.focus({preventScroll: true});
 });
 
 let toastTimer;
@@ -275,15 +284,20 @@ function createComparePicks() {
   </div>`).join('');
 }
 
-function plot(rows, unit, max = Math.max(0, ...rows.map((row) => row.value || 0))) {
+function chartBar(value, max, color) {
+  return `<div class="chart-bar" aria-hidden="true" style="--bar:${100 * value / max}%${color ? `;--bar-color:${color}` : ''}"></div>`;
+}
+
+function plot(rows, unit) {
+  const max = Math.max(0, ...rows.map((row) => row.value || 0));
   if (!max) return '<p class="empty">所选芯片在这一项暂无可对照数值。</p>';
   return `<div class="plot">${rows.map((row, index) => {
     const label = row.href ? `<a class="text-link" href="${escape(row.href)}">${escape(row.label)}</a>` : escape(row.label);
-    const value = row.value === null || row.value === undefined ? '—' : `${format.format(row.value)} ${escape(unit || '')}`.trim();
-    return `<div class="plot-row">
-      <div class="plot-label">${label}${row.sub ? `<small>${escape(row.sub)}</small>` : ''}</div>
-      <div class="track" aria-hidden="true"><span class="bar" style="--bar:${100 * (row.value || 0) / max}%;--bar-color:${row.color || colors[index % colors.length]}"></span></div>
-      <div class="bar-value">${value}</div>
+    const value = row.value == null ? '—' : `${format.format(row.value)} ${escape(unit || '')}`.trim();
+    return `<div class="plot-row" style="--step:${Math.min(index, 7)}">
+      <div class="apple-result-label"><span>${label}</span><strong>${value}</strong></div>
+      ${row.value == null ? '' : chartBar(row.value, max, row.color || colors[index % colors.length])}
+      ${row.sub ? `<p class="plot-note">${escape(row.sub)}</p>` : ''}
     </div>`;
   }).join('')}</div>`;
 }
@@ -395,7 +409,7 @@ function officialChart(group, featured = group.chip) {
             <span>${escape(row.label)}</span>
             <strong>${format.format(row.value)}<small>×</small></strong>
           </div>
-          <div class="apple-bar" aria-hidden="true" style="--bar:${100 * row.value / max}%"></div>
+          ${chartBar(row.value, max)}
           ${row.note || row.value === 1 ? `<p>${escape(row.note)}${row.value === 1 ? ' · 基准' : ''}</p>` : ''}
         </div>`).join('')}</div>
       <figcaption class="apple-chart-caption">
@@ -541,7 +555,7 @@ function detailBenchmarks(chip) {
       const max = Math.max(...group.rows.map((result) => result.values[metric.id]));
       const value = row.values[metric.id];
       return `<div class="detail-bench-number" style="--step:${index}"><span class="detail-stat-label">${escape(metric.label)}</span><b>${animatedNumber(value)} 分</b>
-        <div class="track" aria-hidden="true"><span class="bar" style="--bar:${100 * value / max}%"></span></div>
+        ${chartBar(value, max)}
         <small>本站同组最高 ${format.format(max)} 分</small></div>`;
     }).join('');
     return `<div class="detail-bench">

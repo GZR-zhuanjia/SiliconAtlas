@@ -56,16 +56,16 @@
 }
 .apple-result-label strong small { margin-left: .08em; font-size: .64em; }
 .apple-result.is-featured .apple-result-label strong { color: var(--chart-accent); }
-.apple-bar {
+.chart-bar {
   width: var(--bar);
-  height: 9px;
+  height: 6px;
   border-radius: 999px;
-  background: var(--chart-rail);
+  background: var(--bar-color, var(--chart-rail, var(--blue)));
   transform-origin: left;
   animation: grow .82s cubic-bezier(.18,.7,.25,1) calc(var(--step, 0) * 85ms) both;
 }
-.apple-result.is-baseline .apple-bar { background: var(--chart-baseline); }
-.apple-result.is-featured .apple-bar { background: var(--chart-accent); }
+.apple-result.is-baseline .chart-bar { --bar-color: var(--chart-baseline); }
+.apple-result.is-featured .chart-bar { --bar-color: var(--chart-accent); }
 .apple-result > p, .apple-chart-caption {
   color: var(--muted);
   font-size: 12px;
@@ -85,8 +85,8 @@
 }
 :root[data-theme="dark"] .detail-official .metric-tabs button { border-color: #626f85; }
 :root[data-theme="dark"] .detail-official .metric-tabs button[aria-pressed="true"] { background: #d6e6ff; color: #111725; border-color: #d6e6ff; }
-#chip-detail .apple-bar { animation: none; }
-#chip-detail .is-visible .apple-bar { animation: grow .82s cubic-bezier(.18,.7,.25,1) calc(var(--step, 0) * 85ms) both; }
+#chip-detail .chart-bar { animation: none; }
+#chip-detail .is-visible .chart-bar { animation: grow .82s cubic-bezier(.18,.7,.25,1) calc(var(--step, 0) * 85ms) both; }
 
 /* Details */
 .spec-grid {

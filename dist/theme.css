@@ -34,11 +34,9 @@
 :root[data-theme="dark"] .family-index-button:hover .family-arrow { color: var(--blue); }
 
 :root[data-theme="dark"] :is(.filter-tabs, .compare-box .metric-tabs) button,
-:root[data-theme="dark"] :is(.search, .pick select, .more-row .outline) { border-color: var(--dark-control); }
+:root[data-theme="dark"] :is(.search, .pick select) { border-color: var(--dark-control); }
 :root[data-theme="dark"] :is(.filter-tabs, .compare-box .metric-tabs) button:hover,
-:root[data-theme="dark"] .more-row .outline:hover { border-color: #b0bad0; }
 :root[data-theme="dark"] :is(.filter-tabs, .compare-box .metric-tabs) button[aria-pressed="true"] { background: #d6e6ff; border-color: #d6e6ff; color: #111725; }
-:root[data-theme="dark"] .more-row .outline:hover { background: #272c37; }
 :root[data-theme="dark"] .search svg { stroke: var(--muted); }
 :root[data-theme="dark"] .search input::placeholder { color: var(--muted); }
 :root[data-theme="dark"] .sort-label option { background: var(--surface); }
@@ -49,8 +47,6 @@
 
 :root[data-theme="dark"] :is(.compare-box, .dock) { background: var(--surface); border-color: var(--line); }
 :root[data-theme="dark"] :is(.pick select, thead) { background: #232833; }
-:root[data-theme="dark"] :is(.compare-box, .detail-main) .track { background: #313747; }
-:root[data-theme="dark"] :is(.compare-box, .detail-main) .bar { filter: brightness(1.24); }
 :root[data-theme="dark"] .dock { box-shadow: 0 6px 30px #0007; }
 :root[data-theme="dark"] .dock .icon-button { background: #343b4b; color: var(--ink); }
 :root[data-theme="dark"] .dock .icon-button:hover { background: #49536a; }

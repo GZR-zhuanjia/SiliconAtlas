@@ -60,7 +60,11 @@
   width: var(--bar);
   height: 6px;
   border-radius: 999px;
-  background: var(--bar-color, var(--chart-rail, var(--blue)));
+  --bar-ink: var(--bar-color, var(--chart-rail, var(--blue)));
+  background-color: var(--bar-ink);
+  background-image: linear-gradient(90deg,
+    color-mix(in srgb, var(--bar-ink) 65%, #4540c8),
+    color-mix(in srgb, var(--bar-ink) 58%, #80e7ff));
   transform-origin: left;
   animation: grow .82s cubic-bezier(.18,.7,.25,1) calc(var(--step, 0) * 85ms) both;
 }
@@ -74,9 +78,7 @@
 .apple-result > p { margin-top: 7px; }
 .apple-panel :is(.apple-result > p, .apple-chart-caption) { color: #bac0cf; }
 .apple-chart-caption { margin-top: 22px; }
-.apple-chart-caption details { margin-block: 7px; }
-.apple-chart-caption summary { cursor: pointer; width: fit-content; }
-.apple-chart-caption details p { margin-block: 5px; }
+.apple-test-notes { margin-top: 6px; }
 .apple-chart-caption .text-link { display: inline-block; margin-top: 4px; }
 .detail-official {
   background: var(--surface);
@@ -136,33 +138,6 @@
 .spec-unit { white-space: nowrap; font-size: .41em; letter-spacing: -.02em; }
 .spec-note { margin-top: 10px; color: var(--muted); font-size: 12px; line-height: 1.6; overflow-wrap: anywhere; }
 #chip-detail .is-visible > .spec-tile { animation: detail-rise .56s cubic-bezier(.2,.67,.24,1) calc(var(--step, 0) * 55ms) both; }
-.detail-disclosure {
-  padding: 0 clamp(14px, 3vw, 24px);
-  border: 1px solid var(--line);
-  border-radius: 15px;
-}
-.detail-disclosure > summary {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 5px 12px;
-  list-style: none;
-  cursor: pointer;
-  padding: 16px 0;
-}
-.detail-disclosure > summary::-webkit-details-marker { display: none; }
-.detail-disclosure > summary > span { font-size: clamp(17px, 2.6vw, 24px); font-weight: 650; letter-spacing: -.035em; }
-.detail-disclosure > summary small { color: var(--muted); grid-column: 1; grid-row: 2; font-size: 12px; }
-.detail-disclosure > summary::after {
-  grid-column: 2;
-  grid-row: 1 / span 2;
-  content: "+";
-  color: var(--blue);
-  font-size: 25px;
-  font-weight: 440;
-}
-.detail-disclosure[open] > summary::after { content: "−"; }
-.detail-disclosure .disclosure-content { margin-bottom: 14px; }
 @media (max-width: 750px) {
   .apple-chart { grid-template-columns: minmax(0, 1fr); }
 }

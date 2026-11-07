@@ -344,10 +344,7 @@ td { min-width: 135px; }
 .hero-image > img.art { filter: drop-shadow(0 25px 42px #0008); }
 .hero-caption { z-index: 1; }
 .specialty-tabs { margin-top: 12px; }
-.benchmark-footer { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; margin-top: 18px; }
-.benchmark-footer .fineprint { margin-top: 0; }
-.benchmark-footer .outline { border-color: #555969; }
-.benchmark-footer .outline:hover { background: #2a2d38; border-color: #9da2b7; }
+.benchmark-source { margin-top: 20px; }
 .official-figure { border: 1px solid #e1e1e7; border-radius: 12px; overflow: hidden; background: var(--surface); }
 .official-figure img { width: 100%; display: block; }
 .official-figure figcaption { padding: 10px 13px; }

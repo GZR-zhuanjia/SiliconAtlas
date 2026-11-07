@@ -384,7 +384,6 @@ let officialGroup = appleTests[0]?.id;
 const activeTests = new Map();
 let benchGroup = benchmarks[0]?.id;
 let benchMetric = benchmarks[0]?.metrics?.[0]?.id;
-let showAllBench = false;
 
 function sourceLink(url, title, css = '') {
   if (typeof url !== 'string' || !url.startsWith('https://')) return '';
@@ -414,7 +413,7 @@ function officialChart(group, featured = group.chip) {
         </div>`).join('')}</div>
       <figcaption class="apple-chart-caption">
         <p>同一项目内以标示的基准机型为 1×。倍率取自 Apple 公布的结果。</p>
-        ${hasNotes ? `<details><summary>测试条件</summary><p>${escape(test.note || group.note)}</p></details>` : ''}
+        ${hasNotes ? `<p class="apple-test-notes"><strong>测试条件</strong> · ${escape(test.note || group.note)}</p>` : ''}
         ${sourceLink(group.source, group.sourceTitle, 'text-link')}
       </figcaption>
     </figure>
@@ -460,30 +459,23 @@ function renderGeekbench(sourceTabs) {
       <div><h3 class="figure-title">${escape(group.title)}</h3><p class="figure-subtitle">${escape(group.description)}</p></div>
       <div class="metric-tabs" aria-label="测试指标">${tabMarkup(group.metrics, metric.id, 'bench-metric')}</div>
     </div>
-    ${plot(showAllBench ? rows : rows.slice(0, 8), metric.unit)}
-    <div class="benchmark-footer">
-      <p class="fineprint">${sourceLink(group.source, group.sourceTitle, 'text-link')}</p>
-      ${rows.length > 8 ? `<button class="button outline" type="button" data-bench-more aria-expanded="${showAllBench}">${showAllBench ? '收起成绩' : `查看全部 ${rows.length} 个机型配置`}</button>` : ''}
-    </div>
+    ${plot(rows, metric.unit)}
+    <p class="fineprint benchmark-source">${sourceLink(group.source, group.sourceTitle, 'text-link')}</p>
   </div>`;
 }
 
 benchmarkApp.addEventListener('click', (event) => {
-  const button = event.target.closest('[data-bench-source], [data-apple-group], [data-apple-test], [data-bench-group], [data-bench-metric], [data-bench-more]');
+  const button = event.target.closest('[data-bench-source], [data-apple-group], [data-apple-test], [data-bench-group], [data-bench-metric]');
   if (!button) return;
   if (button.dataset.benchSource) benchmarkSource = button.dataset.benchSource;
   if (button.dataset.appleGroup) officialGroup = button.dataset.appleGroup;
   if (button.dataset.appleTest) activeTests.set(officialGroup, button.dataset.appleTest);
-  if (button.dataset.benchGroup) {
-    benchGroup = button.dataset.benchGroup;
-    showAllBench = false;
-  }
-  if (button.hasAttribute('data-bench-more')) showAllBench = !showAllBench;
+  if (button.dataset.benchGroup) benchGroup = button.dataset.benchGroup;
   if (button.dataset.benchMetric) benchMetric = button.dataset.benchMetric;
   const key = button.getAttributeNames().find((name) => name.startsWith('data-'));
   const selector = `[${key}="${button.getAttribute(key)}"]`;
   renderBench();
-  benchmarkApp.querySelector(selector)?.focus({preventScroll: !button.hasAttribute('data-bench-more')});
+  benchmarkApp.querySelector(selector)?.focus({preventScroll: true});
 });
 
 let returnHash = '';
@@ -608,9 +600,9 @@ function renderDetail(chip) {
       </section>` : ''}
       ${diePhoto ? `<section class="detail-section"><h3>芯片封装</h3><figure class="official-figure" data-reveal><img src="${escape(diePhoto.url)}" alt="${escape(chip.name)} 的 Apple 官方芯片封装图" loading="lazy" decoding="async"><figcaption>${sourceLink(diePhoto.source, '查看 Apple 原图', 'text-link')}</figcaption></figure></section>` : ''}
       ${officialFigure ? `<section class="detail-section"><h3>Apple 官方图表</h3><figure class="official-figure" data-reveal><img src="${escape(officialFigure.url)}" alt="${escape(chip.name)} 的 Apple 官方 CPU 图表" loading="lazy" decoding="async"><figcaption>${sourceLink(officialFigure.source, '查看 Apple 原文', 'text-link')}</figcaption></figure></section>` : ''}
-      ${scores ? `<section class="detail-section"><details class="detail-disclosure" ${official ? '' : 'open'}><summary><span>Geekbench 7 CPU</span><small>第三方机型平均分</small></summary><div class="disclosure-content">${scores}</div></details></section>` : ''}
+      ${scores ? `<section class="detail-section"><h3>Geekbench 7 CPU</h3>${scores}</section>` : ''}
       ${chip.devices?.length ? `<section class="detail-section"><h3>搭载设备</h3><ul class="device-list" data-reveal>${chip.devices.map((device, index) => `<li style="--step:${Math.min(index, 9)}">${escape(device)}</li>`).join('')}</ul></section>` : ''}
-      ${specs.length ? `<section class="detail-section"><details class="detail-disclosure"><summary><span>完整参数</span><small>按型号披露的规格</small></summary><table class="disclosure-content"><tbody data-reveal>${specs.map(([label, value], index) => `<tr style="--step:${Math.min(index, 9)}"><th scope="row">${escape(label)}</th><td>${dataValue(value)}</td></tr>`).join('')}</tbody></table></details></section>` : ''}
+      ${specs.length ? `<section class="detail-section"><h3>完整参数</h3><table><tbody data-reveal>${specs.map(([label, value], index) => `<tr style="--step:${Math.min(index, 9)}"><th scope="row">${escape(label)}</th><td>${dataValue(value)}</td></tr>`).join('')}</tbody></table></section>` : ''}
       <section class="detail-section"><h3>资料来源</h3><ul class="sources">${list.map((source) => `<li>${sourceLink(source.url, source.title)}</li>`).join('')}</ul></section>
     </div>`;
   renderCompareButtons();
